@@ -47,6 +47,14 @@ class Manager
     }
 
 
+    /**
+     * Fetches the complete tree, returning the root node of the tree
+     *
+     * @param mixed $rootId the root id of the tree (or null if model doesn't
+     *   support multiple trees
+     *
+     * @return NodeWrapper $root
+     */
     public function fetchTree($rootId=null)
     {
         $wrappers = $this->fetchTreeAsArray($rootId);
@@ -61,9 +69,13 @@ class Manager
 
 
     /**
-     * Fetches the complete tree, returning the root node of the tree
+     * Fetches the complete tree, returning a flat array of node wrappers with
+     * parent, children, ancestors and descendants pre-populated.
      *
-     * @return NodeWrapper $root
+     * @param mixed $rootId the root id of the tree (or null if model doesn't
+     *   support multiple trees
+     *
+     * @return array
      */
     public function fetchTreeAsArray($rootId=null)
     {
