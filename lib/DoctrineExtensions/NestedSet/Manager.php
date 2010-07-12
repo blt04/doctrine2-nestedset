@@ -123,6 +123,88 @@ class Manager
 
 
     /**
+     * Fetches a branch of a tree, returning the starting node of the branch.
+     * All children and descendants are pre-populated.
+     *
+     * @param mixed $pk the primary key used to locate the node to traverse
+     *   the tree from
+     *
+     * @return NodeWrapper $branch
+     */
+    public function fetchBranch($pk)
+    {
+        $wrappers = $this->fetchBranchAsArray($pk);
+
+        if(is_array($wrappers))
+        {
+            return $wrappers[0];
+        }
+
+        return $wrappers;
+    }
+
+
+    /**
+     * Fetches a branch of a tree, returning a flat array of node wrappers with
+     * parent, children, ancestors and descendants pre-populated.
+     *
+     * @param mixed $pk the primary key used to locate the node to traverse
+     *   the tree from
+     *
+     * @return array
+     */
+    public function fetchBranchAsArray($pk)
+    {
+        $config = $this->getConfiguration();
+        $lftField = $config->getLeftFieldName();
+        $rgtField = $config->getRightFieldName();
+        $rootField = $config->getRootFieldName();
+
+        $node = $this->getEntityManager()->find($this->getConfiguration()->getClassname(), $pk);
+
+        if(!$node)
+        {
+            return null;
+        }
+
+        $qb = $config->getBaseQueryBuilder();
+        $alias = $config->getQueryBuilderAlias();
+
+        $qb->andWhere("$alias.$lftField >= :lowerbound")
+            ->setParameter('lowerbound', $node->getLeftValue())
+            ->andWhere("$alias.$rgtField <= :upperbound")
+            ->setParameter('upperbound', $node->getRightValue())
+            ->orderBy("$alias.$lftField", "ASC");
+
+        // TODO: Add support for depth?
+
+        if($this->getConfiguration()->isRootFieldSupported())
+        {
+            $qb->andWhere("$alias.$rootField = :rootid")
+                ->setParameter('rootid', $node->getRootValue());
+        }
+
+        $nodes = $qb->getQuery()->execute();
+        // @codeCoverageIgnoreStart
+        if(empty($nodes))
+        {
+            return null;
+        }
+        // @codeCoverageIgnoreEnd
+
+        $wrappers = array();
+        foreach($nodes as $node)
+        {
+            $wrappers[] = $this->wrapNode($node);
+        }
+
+        $this->buildTree($wrappers);
+
+        return $wrappers;
+    }
+
+
+    /**
      * Creates a new root node
      *
      * NOTE: This persists an entity via the EntityManager but does not call

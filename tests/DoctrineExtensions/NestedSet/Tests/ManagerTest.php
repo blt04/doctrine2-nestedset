@@ -175,6 +175,64 @@ class ManagerTest extends DatabaseTest
 
 
     /**
+     * @covers DoctrineExtensions\NestedSet\Manager::fetchBranch
+     * @covers DoctrineExtensions\NestedSet\Manager::fetchBranchAsArray
+     * @covers DoctrineExtensions\NestedSet\Manager::buildTree
+     * @covers DoctrineExtensions\NestedSet\NodeWrapper::internalSetParent
+     * @covers DoctrineExtensions\NestedSet\NodeWrapper::internalSetAncestors
+     * @covers DoctrineExtensions\NestedSet\NodeWrapper::internalAddDescendant
+     * @covers DoctrineExtensions\NestedSet\NodeWrapper::internalAddChild
+     */
+    public function testFetchBranch()
+    {
+        $this->loadData();
+        $nodes = $this->nodes;
+
+        $this->assertNull($this->nsm->fetchBranch(-10), '->fetchBranch() returns null when branch node doesn\'t exist');
+
+        $root = $this->nsm->fetchBranch(2);
+        $this->assertInstanceOf('DoctrineExtensions\NestedSet\NodeWrapper', $root, '->fetchBranch() returns a NodeWrapper object');
+
+        //
+        // NOTE: Testing private variables
+        //
+
+        $root_parent = $this->readAttribute($root, 'parent');
+        $root_children = $this->readAttribute($root, 'children');
+        $root_ancestors = $this->readAttribute($root, 'ancestors');
+        $root_descendants = $this->readAttribute($root, 'descendants');
+
+        $this->assertEquals($nodes[1]->getId(), $root->getId(), '->fetchBranch() start id is correct');
+        $this->assertEmpty($root_ancestors, '->fetchBranch() start ancestors is empty');
+        $this->assertNull($root_parent, '->fetchBranch() start parent is null');
+        $this->assertEquals(
+            array($nodes[2]->getId(), $nodes[3]->getId()),
+            array_map(function($e) {return $e->getNode()->getId();}, $root_children),
+            '->fetchBranch() start children populated'
+        );
+        $this->assertEquals(
+            array($nodes[2]->getId(), $nodes[3]->getId()),
+            array_map(function($e) {return $e->getNode()->getId();}, $root_descendants),
+            '->fetchBranch() start descendants populated'
+        );
+
+
+        $node2_parent = $this->readAttribute($root_children[0], 'parent');
+        $node2_children = $this->readAttribute($root_children[0], 'children');
+        $node2_ancestors = $this->readAttribute($root_children[0], 'ancestors');
+        $node2_descendants = $this->readAttribute($root_children[0], 'descendants');
+
+        $this->assertEquals($nodes[1]->getId(), $node2_parent->getNode()->getId(), '->fetchBranch() first child parent is correct');
+        $this->assertEquals(
+            array($nodes[1]->getId()),
+            array_map(function($e) {return $e->getNode()->getId();}, $node2_ancestors),
+            '->fetchBranch() first child ancestors is correct'
+        );
+        $this->assertEmpty($node2_children, '->fetchBranch() first child children populated');
+        $this->assertEmpty($node2_descendants, '->fetchBranch() first child descendants populated');
+    }
+
+    /**
      * @covers DoctrineExtensions\NestedSet\Manager::createRoot
      */
     public function testCreateRoot()
