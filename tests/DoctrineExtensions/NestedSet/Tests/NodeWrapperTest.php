@@ -277,6 +277,19 @@ class NodeWrapperTest extends DatabaseTest
 
 
     /**
+     * @covers DoctrineExtensions\NestedSet\NodeWrapper::getOutlineNumber
+     */
+    public function testGetOutlineNumber()
+    {
+        $this->assertEquals('1.1.1', $this->wrappers[2]->getOutlineNumber(), '->getOutlineNumber() works for 1.1.1');
+        $this->assertEquals('1.1.2', $this->wrappers[3]->getOutlineNumber(), '->getOutlineNumber() works for 1.1.2');
+        $this->assertEquals('', $this->wrappers[0]->getOutlineNumber('.',false), '->getOutlineNumber() works for root');
+        $this->assertEquals('2', $this->wrappers[4]->getOutlineNumber('.',false), '->getOutlineNumber() works with includeNode=false');
+        $this->assertEquals('1-1', $this->wrappers[1]->getOutlineNumber('-'), '->getOutlineNumber() supports separator');
+    }
+
+
+    /**
      * @covers DoctrineExtensions\NestedSet\NodeWrapper::getDescendants
      * @covers DoctrineExtensions\NestedSet\NodeWrapper::filterDescendantsByDepth
      * @covers DoctrineExtensions\NestedSet\NodeWrapper::getLeftFieldName

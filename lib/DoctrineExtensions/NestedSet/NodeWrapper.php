@@ -367,6 +367,78 @@ class NodeWrapper implements Node
 
 
     /**
+     * gets a number representing this node, e.g. 1.2.6
+     *
+     * @param string $separator string to separate the numbers from each
+     *   level (default '.')
+     * @param bool $includeRoot include the root node when numbering
+     *   (default: true)
+     *
+     * @return string
+     */
+    public function getOutlineNumber($separator='.', $includeRoot=true)
+    {
+        $numbers = array();
+        if($includeRoot)
+        {
+            $numbers[] = 1;
+        }
+
+        if(!$this->isRoot())
+        {
+            $ancestors = $this->getAncestors();
+            $root = $ancestors[0];
+
+            $rootDescendants = $root->getDescendants(count($ancestors));
+
+            $siblingNumber = 1;
+            $level = 1;
+            $pathLevel = 1;
+            $stack = array();
+            foreach($rootDescendants as $wrapper)
+            {
+                $parent = end($stack);
+                while($parent && $wrapper->getLeftValue() > $parent->getRightValue())
+                {
+                    array_pop($stack);
+                    $parent = end($stack);
+                    $level--;
+                }
+
+                if($wrapper->getLeftValue() <= $this->getLeftValue() && $wrapper->getRightValue() >= $this->getRightValue())
+                {
+                    // On path
+
+                    if($wrapper->isEqualTo($this))
+                    {
+                        $numbers[] = $siblingNumber;
+                        break;
+                    }
+                    else if($wrapper->isEqualTo($ancestors[$pathLevel]))
+                    {
+                        $numbers[] = $siblingNumber;
+                        $siblingNumber = 1;
+                        $pathLevel++;
+                    }
+                }
+                else if($pathLevel == $level)
+                {
+                    $siblingNumber++;
+                }
+
+                if($wrapper->hasChildren())
+                {
+                    array_push($stack, $wrapper);
+                    $level++;
+                }
+            }
+        }
+
+        return implode($separator, $numbers);
+    }
+
+
+    /**
      * gets number of children (direct descendants)
      *
      * @return int
