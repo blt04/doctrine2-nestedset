@@ -295,6 +295,11 @@ class NodeWrapper implements Node
      */
     public function getAncestors()
     {
+        if($this->isRoot())
+        {
+            return array();
+        }
+
         if($this->ancestors === null)
         {
             $qb = $this->getManager()->getConfiguration()->getBaseQueryBuilder();
