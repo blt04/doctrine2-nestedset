@@ -175,6 +175,32 @@ class ManagerTest extends DatabaseTest
 
 
     /**
+     * @covers DoctrineExtensions\NestedSet\Manager::fetchTree
+     * @covers DoctrineExtensions\NestedSet\Manager::fetchTreeAsArray
+     * @covers DoctrineExtensions\NestedSet\Manager::buildTree
+     * @covers DoctrineExtensions\NestedSet\Manager::filterNodeDepth
+     */
+    public function testFetchTreeDepth()
+    {
+        $this->loadData();
+        $nodes = $this->nodes;
+
+        $this->assertNull($this->nsm->fetchTree(1, 0));
+
+        $root = $this->nsm->fetchTree(1, 2);
+        $this->assertInstanceOf('DoctrineExtensions\NestedSet\NodeWrapper', $root, '->fetchTree() returns a NodeWrapper object');
+
+        //
+        // NOTE: Testing private variables
+        //
+        $node1_children = $this->readAttribute($root->getFirstChild(), 'children');
+        $node1_descendants = $this->readAttribute($root->getFirstChild(), 'descendants');
+        $this->assertEmpty($node1_children, '->fetchTree() empty children with depth filtered');
+        $this->assertEmpty($node1_descendants, '->fetchTree() empty descendants with depth filtered');
+    }
+
+
+    /**
      * @covers DoctrineExtensions\NestedSet\Manager::fetchBranch
      * @covers DoctrineExtensions\NestedSet\Manager::fetchBranchAsArray
      * @covers DoctrineExtensions\NestedSet\Manager::buildTree
@@ -231,6 +257,33 @@ class ManagerTest extends DatabaseTest
         $this->assertEmpty($node2_children, '->fetchBranch() first child children populated');
         $this->assertEmpty($node2_descendants, '->fetchBranch() first child descendants populated');
     }
+
+
+    /**
+     * @covers DoctrineExtensions\NestedSet\Manager::fetchBranch
+     * @covers DoctrineExtensions\NestedSet\Manager::fetchBranchAsArray
+     * @covers DoctrineExtensions\NestedSet\Manager::buildTree
+     * @covers DoctrineExtensions\NestedSet\Manager::filterNodeDepth
+     */
+    public function testFetchBranchDepth()
+    {
+        $this->loadData();
+        $nodes = $this->nodes;
+
+        $this->assertNull($this->nsm->fetchBranch(2, 0));
+
+        $root = $this->nsm->fetchBranch(2, 1);
+        $this->assertInstanceOf('DoctrineExtensions\NestedSet\NodeWrapper', $root, '->fetchTree() returns a NodeWrapper object');
+
+        //
+        // NOTE: Testing private variables
+        //
+        $node1_children = $this->readAttribute($root, 'children');
+        $node1_descendants = $this->readAttribute($root, 'descendants');
+        $this->assertEmpty($node1_children, '->fetchTree() empty children with depth filtered');
+        $this->assertEmpty($node1_descendants, '->fetchTree() empty descendants with depth filtered');
+    }
+
 
     /**
      * @covers DoctrineExtensions\NestedSet\Manager::createRoot
@@ -371,6 +424,15 @@ class ManagerTest extends DatabaseTest
         $this->assertFalse($this->nsm->getEntityManager()->contains($wrappers[2]->getNode()), '->removeNodes() removes node from entity manager');
     }
 
+
+    /**
+     * @covers DoctrineExtensions\NestedSet\Manager::filterNodeDepth
+     */
+    public function testFilterNodeDepth_Empty()
+    {
+        $this->assertEmpty($this->nsm->filterNodeDepth(array(), 1), '->filterNodeDepth() returns an empty array when given an empty array');
+        $this->assertEmpty($this->nsm->filterNodeDepth($this->nodes, 0), '->filterNodeDepth() returns an empty array for depth=0');
+    }
 
 
 }

@@ -91,7 +91,7 @@ class SingleRootNodeWrapperTest extends DatabaseTest
 
     /**
      * @covers DoctrineExtensions\NestedSet\NodeWrapper::getDescendants
-     * @covers DoctrineExtensions\NestedSet\NodeWrapper::filterDescendantsByDepth
+     * @covers DoctrineExtensions\NestedSet\Manager::filterNodeDepth
      */
     public function testGetDescendants()
     {

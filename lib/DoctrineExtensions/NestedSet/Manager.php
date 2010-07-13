@@ -52,19 +52,15 @@ class Manager
      *
      * @param mixed $rootId the root id of the tree (or null if model doesn't
      *   support multiple trees
+     * @param int $depth the depth to retrieve or null for unlimited
      *
      * @return NodeWrapper $root
      */
-    public function fetchTree($rootId=null)
+    public function fetchTree($rootId=null, $depth=null)
     {
-        $wrappers = $this->fetchTreeAsArray($rootId);
+        $wrappers = $this->fetchTreeAsArray($rootId, $depth);
 
-        if(is_array($wrappers))
-        {
-            return $wrappers[0];
-        }
-
-        return $wrappers;
+        return (!is_array($wrappers) || empty($wrappers)) ? null : $wrappers[0];
     }
 
 
@@ -74,10 +70,11 @@ class Manager
      *
      * @param mixed $rootId the root id of the tree (or null if model doesn't
      *   support multiple trees
+     * @param int $depth the depth to retrieve or null for unlimited
      *
      * @return array
      */
-    public function fetchTreeAsArray($rootId=null)
+    public function fetchTreeAsArray($rootId=null, $depth=null)
     {
         $config = $this->getConfiguration();
         $lftField = $config->getLeftFieldName();
@@ -89,14 +86,17 @@ class Manager
             throw new \InvalidArgumentException('Must provide root id');
         }
 
+        if($depth === 0)
+        {
+            return array();
+        }
+
         $qb = $config->getBaseQueryBuilder();
         $alias = $config->getQueryBuilderAlias();
 
         $qb->andWhere("$alias.$lftField >= :lowerbound")
             ->setParameter('lowerbound', 1)
             ->orderBy("$alias.$lftField", "ASC");
-
-        // TODO: Add support for depth?
 
         if($rootField !== null)
         {
@@ -107,7 +107,13 @@ class Manager
         $nodes = $qb->getQuery()->execute();
         if(empty($nodes))
         {
-            return null;
+            return array();
+        }
+
+        // TODO: Filter depth using a cross join instead of this
+        if($depth !== null)
+        {
+            $nodes = $this->filterNodeDepth($nodes, $depth);
         }
 
         $wrappers = array();
@@ -128,19 +134,15 @@ class Manager
      *
      * @param mixed $pk the primary key used to locate the node to traverse
      *   the tree from
+     * @param int $depth the depth to retrieve or null for unlimited
      *
      * @return NodeWrapper $branch
      */
-    public function fetchBranch($pk)
+    public function fetchBranch($pk, $depth=null)
     {
-        $wrappers = $this->fetchBranchAsArray($pk);
+        $wrappers = $this->fetchBranchAsArray($pk, $depth);
 
-        if(is_array($wrappers))
-        {
-            return $wrappers[0];
-        }
-
-        return $wrappers;
+        return (!is_array($wrappers) || empty($wrappers)) ? null : $wrappers[0];
     }
 
 
@@ -150,21 +152,27 @@ class Manager
      *
      * @param mixed $pk the primary key used to locate the node to traverse
      *   the tree from
+     * @param int $depth the depth to retrieve or null for unlimited
      *
      * @return array
      */
-    public function fetchBranchAsArray($pk)
+    public function fetchBranchAsArray($pk, $depth=null)
     {
         $config = $this->getConfiguration();
         $lftField = $config->getLeftFieldName();
         $rgtField = $config->getRightFieldName();
         $rootField = $config->getRootFieldName();
 
+        if($depth === 0)
+        {
+            return array();
+        }
+
         $node = $this->getEntityManager()->find($this->getConfiguration()->getClassname(), $pk);
 
         if(!$node)
         {
-            return null;
+            return array();
         }
 
         $qb = $config->getBaseQueryBuilder();
@@ -176,7 +184,7 @@ class Manager
             ->setParameter('upperbound', $node->getRightValue())
             ->orderBy("$alias.$lftField", "ASC");
 
-        // TODO: Add support for depth?
+        // TODO: Add support for depth via a cross join
 
         if($this->getConfiguration()->isRootFieldSupported())
         {
@@ -191,6 +199,12 @@ class Manager
             return null;
         }
         // @codeCoverageIgnoreEnd
+
+        // TODO: Filter depth using a cross join instead of this
+        if($depth !== null)
+        {
+            $nodes = $this->filterNodeDepth($nodes, $depth);
+        }
 
         $wrappers = array();
         foreach($nodes as $node)
@@ -418,6 +432,53 @@ class Manager
     }
 
 
+    /**
+     * Internal
+     * Filters an array of nodes by depth
+     *
+     * @param array array of Node instances
+     * @param int $depth the depth to filter to
+     *
+     * @return array array of Node instances
+     */
+    public function filterNodeDepth($nodes, $depth)
+    {
+        if(empty($nodes) || $depth === 0)
+        {
+            return array();
+        }
+
+        $newNodes = array();
+        $stack = array();
+        $level = 0;
+
+        foreach($nodes as $node)
+        {
+            $parent = end($stack);
+            while($parent && $node->getLeftValue() > $parent->getRightValue())
+            {
+                array_pop($stack);
+                $parent = end($stack);
+                $level--;
+            }
+
+            if($level < $depth)
+            {
+                $newNodes[] = $node;
+            }
+
+            if(($node->getRightValue() - $node->getLeftValue()) > 1)
+            {
+                array_push($stack, $node);
+                $level++;
+            }
+        }
+
+        return $newNodes;
+    }
+
+
+
 
     protected function buildTree($wrappers)
     {
@@ -457,6 +518,4 @@ class Manager
             }
         }
     }
-
-
 }

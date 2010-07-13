@@ -198,50 +198,10 @@ class NodeWrapper implements Node
         if($depth !== null)
         {
             // TODO: Don't rebuild filtered array everytime?
-            return $this->filterDescendantsByDepth($this->descendants, $depth);
+            return $this->getManager()->filterNodeDepth($this->descendants, $depth);
         }
 
         return $this->descendants;
-    }
-
-
-    /**
-     * Returns a linear array of elements from $this->descendants filtered
-     * using the given depth.
-     *
-     * @param int $depth
-     *
-     * @return array
-     */
-    protected function filterDescendantsByDepth($descendants, $depth)
-    {
-        $d = array();
-        $stack = array();
-        $level = 0;
-
-        foreach($descendants as $descendant)
-        {
-            $parent = end($stack);
-            while($parent && $descendant->getLeftValue() > $parent->getRightValue())
-            {
-                array_pop($stack);
-                $parent = end($stack);
-                $level--;
-            }
-
-            if($level < $depth)
-            {
-                $d[] = $descendant;
-            }
-
-            if($descendant->hasChildren())
-            {
-                array_push($stack, $descendant);
-                $level++;
-            }
-        }
-
-        return $d;
     }
 
 

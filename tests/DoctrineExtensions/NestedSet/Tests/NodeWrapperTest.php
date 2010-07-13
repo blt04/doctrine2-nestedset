@@ -291,7 +291,7 @@ class NodeWrapperTest extends DatabaseTest
 
     /**
      * @covers DoctrineExtensions\NestedSet\NodeWrapper::getDescendants
-     * @covers DoctrineExtensions\NestedSet\NodeWrapper::filterDescendantsByDepth
+     * @covers DoctrineExtensions\NestedSet\Manager::filterNodeDepth
      * @covers DoctrineExtensions\NestedSet\NodeWrapper::getLeftFieldName
      * @covers DoctrineExtensions\NestedSet\NodeWrapper::getRightFieldName
      * @covers DoctrineExtensions\NestedSet\NodeWrapper::getRootFieldName
