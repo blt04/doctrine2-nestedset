@@ -49,6 +49,8 @@ class NodeWrapper implements Node
     /** @var array of NodeWrappers */
     private $children = null;
 
+    private $level = null;
+
 
 
 
@@ -296,7 +298,12 @@ class NodeWrapper implements Node
      */
     public function getLevel()
     {
-        return count($this->getAncestors());
+        if($this->level === null)
+        {
+            $this->level = count($this->getAncestors());
+        }
+
+        return $this->level;
     }
 
 
@@ -1556,6 +1563,15 @@ class NodeWrapper implements Node
     public function internalGetChildren()
     {
         return $this->children;
+    }
+
+
+    /**
+     * INTERNAL
+     */
+    public function internalSetLevel($level)
+    {
+        $this->level = $level;
     }
 
 

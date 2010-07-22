@@ -489,8 +489,16 @@ class Manager
         }
         // @codeCoverageIgnoreEnd
 
+        $config = $this->getConfiguration();
+
         $rootNode = $wrappers[0];
         $stack = array();
+
+        $level = 0;
+        if($config->getHydrateLevel())
+        {
+            $level = $wrappers[0]->getLevel();
+        }
 
         foreach($wrappers as $wrapper)
         {
@@ -499,6 +507,7 @@ class Manager
             {
                 array_pop($stack);
                 $parent = end($stack);
+                $level--;
             }
 
             if($parent && $wrapper !== $rootNode)
@@ -506,6 +515,10 @@ class Manager
                 $wrapper->internalSetParent($parent);
                 $parent->internalAddChild($wrapper);
                 $wrapper->internalSetAncestors($stack);
+                if($config->getHydrateLevel())
+                {
+                    $wrapper->internalSetLevel($level);
+                }
                 foreach($stack as $anc)
                 {
                     $anc->internalAddDescendant($wrapper);
@@ -515,6 +528,7 @@ class Manager
             if($wrapper->hasChildren())
             {
                 array_push($stack, $wrapper);
+                $level++;
             }
         }
     }

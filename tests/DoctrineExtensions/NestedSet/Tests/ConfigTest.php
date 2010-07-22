@@ -48,6 +48,7 @@ class ConfigTest extends DatabaseTest
         $this->assertEquals('lft', $this->config->getLeftFieldName(), '->__construct() sets default left field name');
         $this->assertEquals('rgt', $this->config->getRightFieldName(), '->__construct() sets default right field name');
         $this->assertEquals('root', $this->config->getRootFieldName(), '->__construct() sets default root field name');
+        $this->assertTrue($this->config->getHydrateLevel(), '->__construct() sets hydrate level to true');
     }
 
 
@@ -208,5 +209,16 @@ class ConfigTest extends DatabaseTest
     public function testGetQueryBuilderAlias()
     {
         $this->assertEquals('n', $this->config->getQueryBuilderAlias());
+    }
+
+
+    /**
+     * @covers DoctrineExtensions\NestedSet\Config::getHydrateLevel
+     * @covers DoctrineExtensions\NestedSet\Config::setHydrateLevel
+     */
+    public function testSetHydrateLevel()
+    {
+        $this->assertSame($this->config, $this->config->setHydrateLevel(false), '->setHydrateLevel() returns $this for fluent API');
+        $this->assertFalse($this->config->getHydrateLevel(), '->getHydrateLevel() works');
     }
 }

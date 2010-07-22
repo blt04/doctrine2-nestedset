@@ -101,6 +101,7 @@ class ManagerTest extends DatabaseTest
      * @covers DoctrineExtensions\NestedSet\NodeWrapper::internalSetAncestors
      * @covers DoctrineExtensions\NestedSet\NodeWrapper::internalAddDescendant
      * @covers DoctrineExtensions\NestedSet\NodeWrapper::internalAddChild
+     * @covers DoctrineExtensions\NestedSet\NodeWrapper::internalSetLevel
      */
     public function testFetchTree()
     {
@@ -122,6 +123,7 @@ class ManagerTest extends DatabaseTest
         $root_descendants = $this->readAttribute($root, 'descendants');
 
         $this->assertEquals($nodes[0]->getId(), $root->getId(), '->fetchTree() root id is correct');
+        $this->assertAttributeEquals(0, 'level', $root, '->fetchTree() root level is correct');
         $this->assertEmpty($root_ancestors, '->fetchTree() root ancestors is empty');
         $this->assertNull($root_parent, '->fetchTree() root parent is null');
         $this->assertEquals(
@@ -134,6 +136,7 @@ class ManagerTest extends DatabaseTest
             array_map(function($e) {return $e->getNode()->getId();}, $root_descendants),
             '->fetchTree() root descendants populated'
         );
+        $this->assertAttributeEquals(1, 'level', $root_children[0], '->fetchTree() root children level is correct');
 
 
         $node1_parent = $this->readAttribute($root_children[0], 'parent');
@@ -157,6 +160,7 @@ class ManagerTest extends DatabaseTest
             array_map(function($e) {return $e->getNode()->getId();}, $node1_descendants),
             '->fetchTree() first child descendants populated'
         );
+        $this->assertAttributeEquals(2, 'level', $node1_children[0], '->fetchTree() node 1 children level is correct');
 
 
         $node3_parent = $this->readAttribute($root_descendants[2], 'parent');
@@ -229,7 +233,7 @@ class ManagerTest extends DatabaseTest
         $root_descendants = $this->readAttribute($root, 'descendants');
 
         $this->assertEquals($nodes[1]->getId(), $root->getId(), '->fetchBranch() start id is correct');
-        $this->assertEmpty($root_ancestors, '->fetchBranch() start ancestors is empty');
+        $this->assertAttributeEquals(1, 'level', $root, '->fetchBranch() start level is correct');
         $this->assertNull($root_parent, '->fetchBranch() start parent is null');
         $this->assertEquals(
             array($nodes[2]->getId(), $nodes[3]->getId()),
@@ -241,6 +245,7 @@ class ManagerTest extends DatabaseTest
             array_map(function($e) {return $e->getNode()->getId();}, $root_descendants),
             '->fetchBranch() start descendants populated'
         );
+        $this->assertAttributeEquals(2, 'level', $root_children[0], '->fetchBranch() child level is correct');
 
 
         $node2_parent = $this->readAttribute($root_children[0], 'parent');

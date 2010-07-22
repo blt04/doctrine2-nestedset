@@ -36,7 +36,8 @@ class Config
         $leftFieldName,
         $rightFieldName,
         $rootFieldName,
-        $baseQueryBuilder;
+        $baseQueryBuilder,
+        $hydrateLevel;
 
     /**
      * Constructor.
@@ -57,6 +58,7 @@ class Config
         $this->setLeftFieldName('lft');
         $this->setRightFieldName('rgt');
         $this->setRootFieldName('root');
+        $this->setHydrateLevel(true);
     }
 
 
@@ -275,4 +277,29 @@ class Config
     {
         return $this->getBaseQueryBuilder()->getRootAlias();
     }
+
+
+    /**
+     * Returns true if the level should be hydrated when fetching trees
+     *
+     * @return bool
+     */
+    public function getHydrateLevel()
+    {
+        return $this->hydrateLevel;
+    }
+
+    /**
+     * Sets whether or not to hydrate the level field when fetching trees
+     *
+     * @param bool $b
+     *
+     * @return Config $this for fluent API
+     */
+    public function setHydrateLevel($b)
+    {
+        $this->hydrateLevel = (bool)$b;
+        return $this;
+    }
+
 }
