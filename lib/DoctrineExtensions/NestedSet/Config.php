@@ -37,7 +37,8 @@ class Config
         $rightFieldName,
         $rootFieldName,
         $baseQueryBuilder,
-        $hydrateLevel;
+        $hydrateLevel,
+        $hydrateOutlineNumber;
 
     /**
      * Constructor.
@@ -59,6 +60,7 @@ class Config
         $this->setRightFieldName('rgt');
         $this->setRootFieldName('root');
         $this->setHydrateLevel(true);
+        $this->setHydrateOutlineNumber(true);
     }
 
 
@@ -302,4 +304,29 @@ class Config
         return $this;
     }
 
+
+    /*
+     * Returns true if the outline number should be hydrated when fetching
+     * trees
+     *
+     * @return bool
+     */
+    public function getHydrateOutlineNumber()
+    {
+        return $this->hydrateOutlineNumber;
+    }
+
+
+    /**
+     * Sets whether or not to hydrate the outline number when fetching trees
+     *
+     * @param bool $b
+     *
+     * @return Config $this for fluent API
+     */
+    public function setHydrateOutlineNumber($b)
+    {
+        $this->hydrateOutlineNumber = (bool)$b;
+        return $this;
+    }
 }

@@ -500,6 +500,13 @@ class Manager
             $level = $wrappers[0]->getLevel();
         }
 
+        $outlineNumbers = array(0);
+        if($config->getHydrateOutlineNumber())
+        {
+            $outlineNumbers = explode('.', $wrappers[0]->getOutlineNumber('.', true));
+            $outlineNumbers[count($outlineNumbers)-1]--;
+        }
+
         foreach($wrappers as $wrapper)
         {
             $parent = end($stack);
@@ -508,7 +515,10 @@ class Manager
                 array_pop($stack);
                 $parent = end($stack);
                 $level--;
+                array_pop($outlineNumbers);
             }
+
+            $outlineNumbers[count($outlineNumbers)-1]++;
 
             if($parent && $wrapper !== $rootNode)
             {
@@ -518,6 +528,10 @@ class Manager
                 if($config->getHydrateLevel())
                 {
                     $wrapper->internalSetLevel($level);
+                }
+                if($config->getHydrateOutlineNumber())
+                {
+                    $wrapper->internalSetOutlineNumbers($outlineNumbers);
                 }
                 foreach($stack as $anc)
                 {
@@ -529,6 +543,7 @@ class Manager
             {
                 array_push($stack, $wrapper);
                 $level++;
+                array_push($outlineNumbers, 0);
             }
         }
     }

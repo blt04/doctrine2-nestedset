@@ -49,6 +49,7 @@ class ConfigTest extends DatabaseTest
         $this->assertEquals('rgt', $this->config->getRightFieldName(), '->__construct() sets default right field name');
         $this->assertEquals('root', $this->config->getRootFieldName(), '->__construct() sets default root field name');
         $this->assertTrue($this->config->getHydrateLevel(), '->__construct() sets hydrate level to true');
+        $this->assertTrue($this->config->getHydrateOutlineNumber(), '->__construct() sets default hydrate outline number');
     }
 
 
@@ -220,5 +221,16 @@ class ConfigTest extends DatabaseTest
     {
         $this->assertSame($this->config, $this->config->setHydrateLevel(false), '->setHydrateLevel() returns $this for fluent API');
         $this->assertFalse($this->config->getHydrateLevel(), '->getHydrateLevel() works');
+    }
+
+
+    /*
+     * @covers DoctrineExtensions\NestedSet\Config::getHydrateOutlineNumber
+     * @covers DoctrineExtensions\NestedSet\Config::setHydrateOutlineNumber
+     */
+    public function testSetHydrateOutlineNumber()
+    {
+        $this->assertSame($this->config, $this->config->setHydrateOutlineNumber(false), '->setHydrateOutlineNumber() returns $this for fluent API');
+        $this->assertFalse($this->config->getHydrateOutlineNumber(), '->getHydrateOutlineNumber() works');
     }
 }
