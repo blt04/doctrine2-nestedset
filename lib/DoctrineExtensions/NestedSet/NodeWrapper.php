@@ -1419,6 +1419,8 @@ class NodeWrapper implements Node
         $this->ancestors = null;
         $this->descendants = null;
         $this->children = null;
+        $this->level = null;
+        $this->outlineNumbers = null;
     }
 
 
