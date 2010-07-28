@@ -133,8 +133,8 @@ model's root node.  To get access to your model object:
     $child2 = new Category();
     $child2->name = 'Child Category 2';
 
-    $category->addChild($child1);
-    $category->addChild($child2);
+    $rootNode->addChild($child1);
+    $rootNode->addChild($child2);
 
 
 ### Deleting a Node
