@@ -267,12 +267,13 @@ class Manager
             throw new \InvalidArgumentException('Can\'t wrap a NodeWrapper node');
         }
 
-        if(!array_key_exists($node->getId(), $this->wrappers))
+		$oid = spl_object_hash($node);
+        if(!isset($this->wrappers[$oid]))
         {
-            $this->wrappers[$node->getId()] = new NodeWrapper($node, $this);
+            $this->wrappers[$oid] = new NodeWrapper($node, $this);
         }
 
-        return $this->wrappers[$node->getId()];
+        return $this->wrappers[$oid];
     }
 
 
@@ -416,13 +417,13 @@ class Manager
         $rootField = $this->getConfiguration()->getRootFieldName();
 
         $removed = array();
-        foreach($this->wrappers as $wrapper)
+        foreach($this->wrappers as $oid => $wrapper)
         {
             if($rootField === null || ($wrapper->getRootValue() == $root))
             {
                 if($wrapper->getLeftValue() >= $left && $wrapper->getRightValue() <= $right)
                 {
-                    $removed[$wrapper->getId()] = $wrapper;
+                    $removed[$oid] = $wrapper;
                 }
             }
         }
