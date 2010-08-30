@@ -36,10 +36,20 @@ class ManagerTest extends DatabaseTest
         $this->nsm = new ManagerMock($this->getEntityManager(), 'DoctrineExtensions\NestedSet\Tests\Mocks\NodeMock');
     }
 
+    public function setUpDb($em=null)
+    {
+        if($em === null)
+        {
+            $em = $this->getEntityManager();
+        }
+
+        $this->loadSchema(array($em->getClassMetadata('DoctrineExtensions\NestedSet\Tests\Mocks\NodeMock')));
+    }
+
     protected function loadData()
     {
+        $this->setUpDb();
         $em = $this->getEntityManager();
-        $this->loadSchema(array($em->getClassMetadata('DoctrineExtensions\NestedSet\Tests\Mocks\NodeMock')));
 
         $this->nodes = array(
             new NodeMock(1, '1', 1, 10),               # 0
@@ -301,12 +311,14 @@ class ManagerTest extends DatabaseTest
      */
     public function testCreateRoot()
     {
+        $this->setUpDb();
+
         $node = new NodeMock(21, '1');
-        $wrapper = $this->nsm->createRoot($node, 3);
+        $wrapper = $this->nsm->createRoot($node);
         $this->assertInstanceOf('DoctrineExtensions\NestedSet\NodeWrapper', $wrapper, '->createRoot() returns a NodeWrapper()');
         $this->assertEquals(1, $wrapper->getLeftValue(), '->createRoot() sets left value');
         $this->assertEquals(2, $wrapper->getRightValue(), '->createRoot() sets right value');
-        $this->assertEquals(3, $wrapper->getRootValue(), '->createRoot() sets root value');
+        $this->assertEquals(21, $wrapper->getRootValue(), '->createRoot() sets root value');
     }
 
 
@@ -319,6 +331,20 @@ class ManagerTest extends DatabaseTest
         $node = new NodeMock(21, '1');
         $wrapper = $this->nsm->wrapNode($node);
         $this->nsm->createRoot($wrapper);
+    }
+
+
+    /**
+     * @covers DoctrineExtensions\NestedSet\Manager::createRoot
+     */
+    public function testCreateRoot_NoId()
+    {
+        $this->setUpDb();
+
+        $node = new NodeMock(null, '1');
+        $wrapper = $this->nsm->createRoot($node);
+        $this->assertInstanceOf('DoctrineExtensions\NestedSet\NodeWrapper', $wrapper, '->createRoot() returns a NodeWrapper()');
+        $this->assertEquals($wrapper->getId(), $wrapper->getRootValue(), '->createRoot() sets root value');
     }
 
 

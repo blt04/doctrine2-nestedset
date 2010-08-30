@@ -121,8 +121,6 @@ model's root node.  To get access to your model object:
 
     $rootNode = $nsm->createRoot($category);
 
-    $em->flush();
-
 
 ### Inserting a Node
 

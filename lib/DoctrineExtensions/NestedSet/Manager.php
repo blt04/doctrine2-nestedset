@@ -229,15 +229,11 @@ class Manager
     /**
      * Creates a new root node
      *
-     * NOTE: This persists an entity via the EntityManager but does not call
-     * flush.  To save the new node to the database you should call
-     * EntityManager::flush.
-     *
      * @param Node
      *
      * @return NodeWrapper
      */
-    public function createRoot(Node $node, $rootId=null)
+    public function createRoot(Node $node)
     {
         if($node instanceof NodeWrapper)
         {
@@ -246,11 +242,33 @@ class Manager
 
         $node->setLeftValue(1);
         $node->setRightValue(2);
-        if($rootId !== null)
+
+        if($this->getConfiguration()->hasManyRoots())
         {
-            $node->setRootValue($rootId);
+            $rootValue = $node->getId();
+            if($rootValue === null)
+            {
+                // Set a temporary value in case wrapped node requires root value to be set
+                $node->setRootValue(0);
+                $this->getEntityManager()->persist($node);
+                $this->getEntityManager()->flush();
+                $rootValue = $node->getId();
+            }
+
+            if($rootValue === null)
+            {
+                // @codeCoverageIgnoreStart
+                throw new \RuntimeException('Node must have an identifier available via getId()');
+                // @codeCoverageIgnoreEnd
+            }
+
+            $node->setRootValue($rootValue);
         }
+
+
         $this->getEntityManager()->persist($node);
+        $this->getEntityManager()->flush();
+
         return $this->wrapNode($node);
     }
 

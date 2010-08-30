@@ -28,6 +28,7 @@ class NodeMock implements MultipleRootNode
 {
     /**
      * @Id @Column(type="integer")
+     * @GeneratedValue
      */
     private $id;
 
