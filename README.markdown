@@ -27,7 +27,7 @@ mapped fields for holding the Nested Set left and right values.
 
 Here's an example using annotation mapping:
 
-    namespace Entities;
+    namespace Entity;
 
     use DoctrineExtensions\NestedSet\Node;
 
@@ -102,7 +102,7 @@ for creating new trees and fetching existing trees.
 
 To fetch an entire tree from the database:
 
-    $config = new Config($em, 'Entities\Category');
+    $config = new Config($em, 'Entity\Category');
     $nsm = new Manager($config);
     $rootNode = $nsm->fetchTree(1);
 
@@ -114,7 +114,7 @@ model's root node.  To get access to your model object:
 
 ### Creating a Root Node
 
-    $config = new Config($em, 'Entities\Category');
+    $config = new Config($em, 'Entity\Category');
     $nsm = new Manager($config);
 
     $category = new Category();
@@ -143,7 +143,7 @@ You must always delete a node using the `NodeWrapper::delete()` method instead
 of EntityManager's delete method.  `NodeWrapper::delete()` takes care of
 updating the tree when deleting nodes:
 
-    $category = $em->getRepository('Entities\Category')->findOneByName('Child Category 1');
+    $category = $em->getRepository('Entity\Category')->findOneByName('Child Category 1');
     $node = $nsm->wrapNode($category);
     $node->delete();
 
@@ -317,7 +317,7 @@ class.  By default, NestedSet expects these fields to be named lft, rgt and
 root respectively.  You can customize the names of these fields using via the
 manager configuration:
 
-    $config = new Config($em, 'Entities\Category');
+    $config = new Config($em, 'Entity\Category');
     $config->setLeftFieldName('nsLeft');
     $config->setRightFieldName('nsRight');
     $config->setRootFieldName('nsRoot');
