@@ -38,7 +38,8 @@ class Config
         $rootFieldName,
         $baseQueryBuilder,
         $hydrateLevel,
-        $hydrateOutlineNumber;
+        $hydrateOutlineNumber,
+        $hasManyRoots;
 
     /**
      * Constructor.
@@ -50,17 +51,19 @@ class Config
     public function __construct(EntityManager $em, $clazz=null)
     {
         $this->em = $em;
-        if($clazz)
-        {
-            $this->setClass($clazz);
-        }
 
         // Set defaults
+        $this->hasManyRoots = false;
         $this->setLeftFieldName('lft');
         $this->setRightFieldName('rgt');
         $this->setRootFieldName('root');
         $this->setHydrateLevel(true);
         $this->setHydrateOutlineNumber(true);
+
+        if($clazz)
+        {
+            $this->setClass($clazz);
+        }
     }
 
 
@@ -96,6 +99,7 @@ class Config
             throw new \InvalidArgumentException('Class must implement Node interface: ' . $classname);
         }
 
+        $this->hasManyRoots = $reflectionClass->implementsInterface('DoctrineExtensions\NestedSet\MultipleRootNode');
         $this->classMetadata = $classMetadata;
         $this->classname = $classname;
 
@@ -213,9 +217,9 @@ class Config
      *
      * @return bool
      */
-    public function isRootFieldSupported()
+    public function hasManyRoots()
     {
-        return $this->getRootFieldName() !== null;
+        return $this->hasManyRoots;
     }
 
     /**

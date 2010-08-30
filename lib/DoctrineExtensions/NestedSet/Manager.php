@@ -80,6 +80,7 @@ class Manager
         $lftField = $config->getLeftFieldName();
         $rgtField = $config->getRightFieldName();
         $rootField = $config->getRootFieldName();
+        $hasManyRoots = $config->hasManyRoots();
 
         if($rootId === null && $rootField !== null)
         {
@@ -98,7 +99,7 @@ class Manager
             ->setParameter('lowerbound', 1)
             ->orderBy("$alias.$lftField", "ASC");
 
-        if($rootField !== null)
+        if($hasManyRoots)
         {
             $qb->andWhere("$alias.$rootField = :rootid")
                 ->setParameter('rootid', $rootId);
@@ -162,6 +163,7 @@ class Manager
         $lftField = $config->getLeftFieldName();
         $rgtField = $config->getRightFieldName();
         $rootField = $config->getRootFieldName();
+        $hasManyRoots = $config->hasManyRoots();
 
         if($depth === 0)
         {
@@ -192,7 +194,7 @@ class Manager
 
         // TODO: Add support for depth via a cross join
 
-        if($this->getConfiguration()->isRootFieldSupported())
+        if($hasManyRoots)
         {
             $qb->andWhere("$alias.$rootField = :rootid")
                 ->setParameter('rootid', $node->getRootValue());
@@ -318,13 +320,13 @@ class Manager
      * @param mixed $rootVal the root value of entities to act upon
      *
      */
-    public function updateLeftValues($first, $last, $delta, $rootVal)
+    public function updateLeftValues($first, $last, $delta, $rootVal=null)
     {
-        $rootField = $this->getConfiguration()->getRootFieldName();
+        $hasManyRoots = $this->getConfiguration()->hasManyRoots();
 
         foreach($this->wrappers as $wrapper)
         {
-            if(($rootField === null) || ($wrapper->getRootValue() == $rootVal))
+            if(!$hasManyRoots || ($wrapper->getRootValue() == $rootVal))
             {
                 if($wrapper->getLeftValue() >= $first && ($last === 0 || $wrapper->getLeftValue() <= $last))
                 {
@@ -346,13 +348,13 @@ class Manager
      * @param mixed $rootVal the root value of entities to act upon
      *
      */
-    public function updateRightValues($first, $last, $delta, $rootVal)
+    public function updateRightValues($first, $last, $delta, $rootVal=null)
     {
-        $rootField = $this->getConfiguration()->getRootFieldName();
+        $hasManyRoots = $this->getConfiguration()->hasManyRoots();
 
         foreach($this->wrappers as $wrapper)
         {
-            if(($rootField === null) || ($wrapper->getRootValue() == $rootVal))
+            if(!$hasManyRoots || ($wrapper->getRootValue() == $rootVal))
             {
                 if($wrapper->getRightValue() >= $first && ($last === 0 || $wrapper->getRightValue() <= $last))
                 {
@@ -381,11 +383,11 @@ class Manager
             return;
         }
 
-        $rootField = $this->getConfiguration()->getRootFieldName();
+        $hasManyRoots = $this->getConfiguration()->hasManyRoots();
 
         foreach($this->wrappers as $wrapper)
         {
-            if($rootField === null || ($wrapper->getRootValue() == $oldRoot))
+            if(!$hasManyRoots || ($wrapper->getRootValue() == $oldRoot))
             {
                 if($wrapper->getLeftValue() >= $first && ($last === 0 || $wrapper->getRightValue() <= $last))
                 {
@@ -394,7 +396,7 @@ class Manager
                         $wrapper->setLeftValue($wrapper->getLeftValue() + $delta);
                         $wrapper->setRightValue($wrapper->getRightValue() + $delta);
                     }
-                    if($newRoot !== null)
+                    if($hasManyRoots && $newRoot !== null)
                     {
                         $wrapper->setRootValue($newRoot);
                     }
@@ -412,14 +414,14 @@ class Manager
      * @param int $right
      * @param mixed $root
      */
-    public function removeNodes($left, $right, $root)
+    public function removeNodes($left, $right, $root=null)
     {
-        $rootField = $this->getConfiguration()->getRootFieldName();
+        $hasManyRoots = $this->getConfiguration()->hasManyRoots();
 
         $removed = array();
         foreach($this->wrappers as $oid => $wrapper)
         {
-            if($rootField === null || ($wrapper->getRootValue() == $root))
+            if(!$hasManyRoots || ($wrapper->getRootValue() == $root))
             {
                 if($wrapper->getLeftValue() >= $left && $wrapper->getRightValue() <= $right)
                 {
@@ -433,7 +435,10 @@ class Manager
             unset($this->wrappers[$key]);
             $wrapper->setLeftValue(0);
             $wrapper->setRightValue(0);
-            $wrapper->setRootValue(0);
+            if($hasManyRoots)
+            {
+                $wrapper->setRootValue(0);
+            }
             $this->getEntityManager()->detach($wrapper->getNode());
         }
     }

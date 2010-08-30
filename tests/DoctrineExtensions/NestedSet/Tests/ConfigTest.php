@@ -48,6 +48,7 @@ class ConfigTest extends DatabaseTest
         $this->assertEquals('lft', $this->config->getLeftFieldName(), '->__construct() sets default left field name');
         $this->assertEquals('rgt', $this->config->getRightFieldName(), '->__construct() sets default right field name');
         $this->assertEquals('root', $this->config->getRootFieldName(), '->__construct() sets default root field name');
+        $this->assertFalse($this->config->hasManyRoots(), '->__construct sets default hasManyRoots');
         $this->assertTrue($this->config->getHydrateLevel(), '->__construct() sets hydrate level to true');
         $this->assertTrue($this->config->getHydrateOutlineNumber(), '->__construct() sets default hydrate outline number');
     }
@@ -144,14 +145,15 @@ class ConfigTest extends DatabaseTest
 
 
     /**
-     * @covers DoctrineExtensions\NestedSet\Config::isRootFieldSupported
+     * @covers DoctrineExtensions\NestedSet\Config::hasManyRoots
      */
     public function testIsSingleRoot()
     {
-        $this->assertTrue($this->config->isRootFieldSupported(), '->isRootFieldSupported() returns true when root field is not null');
+        $this->config->setClass('DoctrineExtensions\NestedSet\Tests\Mocks\NodeMock');
+        $this->assertTrue($this->config->hasManyRoots(), '->hasManyRoots() returns true for MutlipleRootNode node');
 
-        $this->config->setRootFieldName(null);
-        $this->assertFalse($this->config->isRootFieldSupported(), '->isRootFieldSupported() returns false when root field is null');
+        $this->config->setClass('DoctrineExtensions\NestedSet\Tests\Mocks\SingleRootNodeMock');
+        $this->assertFalse($this->config->hasManyRoots(), '->hasManyRoots() returns false for Node node');
     }
 
 

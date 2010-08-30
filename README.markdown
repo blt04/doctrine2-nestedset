@@ -62,9 +62,6 @@ Here's an example using annotation mapping:
         public function getRightValue() { return $this->rgt; }
         public function setRightValue($rgt) { $this->rgt = $rgt; }
 
-        public function getRootValue() { return null; }
-        public function setRootValue($root) { }
-
         public function __toString() { return $this->name; }
     }
 
@@ -76,7 +73,9 @@ fields.  These are used internally to manage the tree structure.
 
 The nested set implementation can be configured to allow your table to have
 multiple root nodes, and therefore multiple trees within the same table.  This
-is done by mapping a root field.
+is done by implementing the `DoctrineExtensions\NestedSet\MultipleRootNode`
+interface (instead of `DoctrineExtensions\NestedSet\Node`) and mapping a root
+field.
 
 Extending our annotation example:
 

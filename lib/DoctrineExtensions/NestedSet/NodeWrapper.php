@@ -100,7 +100,7 @@ class NodeWrapper implements Node
 
         $qb->andWhere("$alias.".$this->getLeftFieldName()." = :lft1")
             ->setParameter('lft1', $this->getLeftValue() + 1);
-        if($this->isRootFieldSupported())
+        if($this->hasManyRoots())
         {
             $qb->andWhere("$alias.".$this->getRootFieldName()." = :root")
                 ->setParameter('root', $this->getRootValue());
@@ -135,7 +135,7 @@ class NodeWrapper implements Node
 
         $qb->andWhere("$alias.".$this->getRightFieldName()." = :rgt1")
             ->setParameter('rgt1', $this->getRightValue() - 1);
-        if($this->isRootFieldSupported())
+        if($this->hasManyRoots())
         {
             $qb->andWhere("$alias.".$this->getRootFieldName()." = :root")
                 ->setParameter('root', $this->getRootValue());
@@ -182,7 +182,7 @@ class NodeWrapper implements Node
                 ->andWhere("$alias.".$this->getRightFieldName()." < :rgt1")
                 ->setParameter('rgt1', $this->getRightValue())
                 ->orderBy("$alias.".$this->getLeftFieldName(), "ASC");
-            if($this->isRootFieldSupported())
+            if($this->hasManyRoots())
             {
                 $qb->andWhere("$alias.".$this->getRootFieldName()." = :root")
                     ->setParameter('root', $this->getRootValue());
@@ -238,7 +238,7 @@ class NodeWrapper implements Node
                 ->setParameter('rgt1', $this->getRightValue())
                 ->orderBy("$alias.".$this->getRightFieldName(), "ASC")
                 ->setMaxResults(1);
-            if($this->isRootFieldSupported())
+            if($this->hasManyRoots())
             {
                 $qb->andWhere("$alias.".$this->getRootFieldName()." = :root")
                     ->setParameter('root', $this->getRootValue());
@@ -274,7 +274,7 @@ class NodeWrapper implements Node
                 ->andWhere("$alias.".$this->getRightFieldName()." > :rgt1")
                 ->setParameter('rgt1', $this->getRightValue())
                 ->orderBy("$alias.".$this->getLeftFieldName(), "ASC");
-            if($this->isRootFieldSupported())
+            if($this->hasManyRoots())
             {
                 $qb->andWhere("$alias.".$this->getRootFieldName()." = :root")
                     ->setParameter('root', $this->getRootValue());
@@ -499,7 +499,7 @@ class NodeWrapper implements Node
 
         $qb->andWhere("$alias.".$this->getRightFieldName()." = :rgt1")
             ->setParameter('rgt1', $this->getLeftValue() - 1);
-        if($this->isRootFieldSupported())
+        if($this->hasManyRoots())
         {
             $qb->andWhere("$alias.".$this->getRootFieldName()." = :root")
                 ->setParameter('root', $this->getRootValue());
@@ -543,7 +543,7 @@ class NodeWrapper implements Node
 
         $qb->andWhere("$alias.".$this->getLeftFieldName()." = :lft1")
             ->setParameter('lft1', $this->getRightValue() + 1);
-        if($this->isRootFieldSupported())
+        if($this->hasManyRoots())
         {
             $qb->andWhere("$alias.".$this->getRootFieldName()." = :root")
                 ->setParameter('root', $this->getRootValue());
@@ -618,11 +618,10 @@ class NodeWrapper implements Node
         $em = $this->getManager()->getEntityManager();
         $lftField = $this->getLeftFieldName();
         $rgtField = $this->getRightFieldName();
-        $rootField = $this->getRootFieldName();
 
         $newLft = $node->getLeftValue();
         $newRgt = $node->getRightValue() + 2;
-        $newRoot = $node->getRootValue();
+        $newRoot = $this->hasManyRoots() ? $node->getRootValue() : null;
 
         // beginTransaction
         $em->getConnection()->beginTransaction();
@@ -640,9 +639,9 @@ class NodeWrapper implements Node
                 ->setParameter(1, $newLft)
                 ->andWhere("n.$rgtField <= ?2")
                 ->setParameter(2, $newRgt);
-            if($this->isRootFieldSupported())
+            if($this->hasManyRoots())
             {
-                $qb->andWhere("n.$rootField = ?3")
+                $qb->andWhere("n.".$this->getRootFieldName()." = ?3")
                     ->setParameter(3, $newRoot);
             }
             $qb->getQuery()->execute();
@@ -680,7 +679,7 @@ class NodeWrapper implements Node
         $em = $this->getManager()->getEntityManager();
         $newLeft = $node->getLeftValue();
         $newRight = $node->getLeftValue() + 1;
-        $newRoot = $node->getRootValue();
+        $newRoot = $this->hasManyRoots() ? $node->getRootValue() : null;
 
         // beginTransaction
         $em->getConnection()->beginTransaction();
@@ -719,7 +718,7 @@ class NodeWrapper implements Node
         $em = $this->getManager()->getEntityManager();
         $newLeft = $node->getRightValue() + 1;
         $newRight = $node->getRightValue() + 2;
-        $newRoot = $node->getRootValue();
+        $newRoot = $this->hasManyRoots() ? $node->getRootValue() : null;
 
         // beginTransaction
         $em->getConnection()->beginTransaction();
@@ -758,7 +757,7 @@ class NodeWrapper implements Node
         $em = $this->getManager()->getEntityManager();
         $newLeft = $node->getLeftValue() + 1;
         $newRight = $node->getLeftValue() + 2;
-        $newRoot = $node->getRootValue();
+        $newRoot = $this->hasManyRoots() ? $node->getRootValue() : null;
 
         // beginTransaction
         $em->getConnection()->beginTransaction();
@@ -797,7 +796,7 @@ class NodeWrapper implements Node
         $em = $this->getManager()->getEntityManager();
         $newLeft = $node->getRightValue();
         $newRight = $node->getRightValue() + 1;
-        $newRoot = $node->getRootValue();
+        $newRoot = $this->hasManyRoots() ? $node->getRootValue() : null;
 
         // beginTransaction
         $em->getConnection()->beginTransaction();
@@ -839,7 +838,7 @@ class NodeWrapper implements Node
         $em->getConnection()->beginTransaction();
         try
         {
-            if($this->getRootValue() !== $node->getRootValue())
+            if($this->hasManyRoots() && $this->getRootValue() !== $node->getRootValue())
             {
                 $this->moveBetweenTrees($node, $node->getLeftValue(), __FUNCTION__);
             }
@@ -881,7 +880,7 @@ class NodeWrapper implements Node
         $em->getConnection()->beginTransaction();
         try
         {
-            if($this->getRootValue() !== $node->getRootValue())
+            if($this->hasManyRoots() && $this->getRootValue() !== $node->getRootValue())
             {
                 $this->moveBetweenTrees($node, $node->getRightValue() + 1, __FUNCTION__);
             }
@@ -923,7 +922,7 @@ class NodeWrapper implements Node
         $em->getConnection()->beginTransaction();
         try
         {
-            if($this->getRootValue() !== $node->getRootValue())
+            if($this->hasManyRoots() && $this->getRootValue() !== $node->getRootValue())
             {
                 $this->moveBetweenTrees($node, $node->getLeftValue() + 1, __FUNCTION__);
             }
@@ -965,7 +964,7 @@ class NodeWrapper implements Node
         $em->getConnection()->beginTransaction();
         try
         {
-           if($this->getRootValue() !== $node->getRootValue())
+            if($this->hasManyRoots() && $this->getRootValue() !== $node->getRootValue())
             {
                 $this->moveBetweenTrees($node, $node->getRightValue(), __FUNCTION__);
             }
@@ -1001,7 +1000,7 @@ class NodeWrapper implements Node
             return;
         }
 
-        if(!$this->isRootFieldSupported())
+        if(!$this->hasManyRoots())
         {
             throw new \BadMethodCallException(sprintf('%s::%s is only supported on multiple root trees', __CLASS__, __METHOD__));
         }
@@ -1086,7 +1085,10 @@ class NodeWrapper implements Node
 
         $node->setLeftValue($this->getRightValue());
         $node->setRightValue($this->getRightValue() + 1);
-        $node->setRootValue($this->getRootValue());
+        if($this->hasManyRoots())
+        {
+            $node->setRootValue($this->getRootValue());
+        }
 
         $em = $this->getManager()->getEntityManager();
 
@@ -1094,7 +1096,7 @@ class NodeWrapper implements Node
         $em->getConnection()->beginTransaction();
         try
         {
-            $this->shiftRLRange($this->getRightValue(), 0, 2, $this->getRootValue());
+            $this->shiftRLRange($this->getRightValue(), 0, 2, ($this->hasManyRoots() ? $this->getRootValue() : null));
 
             $em->persist($node);
 
@@ -1124,11 +1126,10 @@ class NodeWrapper implements Node
         $em = $this->getManager()->getEntityManager();
         $lftField = $this->getLeftFieldName();
         $rgtField = $this->getRightFieldName();
-        $rootField = $this->getRootFieldName();
 
         $oldLft = $this->getLeftValue();
         $oldRgt = $this->getRightValue();
-        $oldRoot = $this->getRootValue();
+        $oldRoot = $this->hasManyRoots() ? $this->getRootValue() : null;
 
         // beginTransaction
         $em->getConnection()->beginTransaction();
@@ -1140,9 +1141,9 @@ class NodeWrapper implements Node
                 ->setParameter(1, $oldLft)
                 ->andWhere("n.$rgtField <= ?2")
                 ->setParameter(2, $oldRgt);
-            if($this->isRootFieldSupported())
+            if($this->hasManyRoots())
             {
-                $qb->andWhere("n.$rootField = ?3")
+                $qb->andWhere("n.".$this->getRootFieldName()." = ?3")
                     ->setParameter(3, $oldRoot);
             }
             $qb->getQuery()->execute();
@@ -1179,11 +1180,14 @@ class NodeWrapper implements Node
      * @param mixed $destRoot
      *
      */
-    protected function insertNode($destLeft, $destRight, $destRoot)
+    protected function insertNode($destLeft, $destRight, $destRoot=null)
     {
         $this->setLeftValue($destLeft);
         $this->setRightValue($destRight);
-        $this->setRootValue($destRoot);
+        if($this->hasManyRoots())
+        {
+            $this->setRootValue($destRoot);
+        }
         $this->getManager()->getEntityManager()->persist($this->getNode());
     }
 
@@ -1201,7 +1205,7 @@ class NodeWrapper implements Node
     {
         $left = $this->getLeftValue();
         $right = $this->getRightValue();
-        $root = $this->getRootValue();
+        $root = $this->hasManyRoots() ? $this->getRootValue() : null;
 
         $treeSize = $right - $left + 1;
 
@@ -1239,7 +1243,6 @@ class NodeWrapper implements Node
     protected function shiftRLRange($first, $last, $delta, $rootVal)
     {
         $em = $this->getManager()->getEntityManager();
-        $rootField = $this->getRootFieldName();
 
         foreach(array($this->getLeftFieldName(), $this->getRightFieldName()) as $field)
         {
@@ -1257,9 +1260,9 @@ class NodeWrapper implements Node
                     ->setParameter('upperbound', $last);
             }
 
-            if($this->isRootFieldSupported())
+            if($this->hasManyRoots())
             {
-                $q->andWhere("n.$rootField = :root")
+                $q->andWhere("n.".$this->getRootFieldName()." = :root")
                     ->setParameter('root', $rootVal);
             }
 
@@ -1285,6 +1288,13 @@ class NodeWrapper implements Node
      */
     protected function moveBetweenTrees(NodeWrapper $node, $newLeftValue, $moveType)
     {
+        if(!$this->hasManyRoots())
+        {
+            // @codeCoverageIgnoreStart
+            throw new \BadMethodCallException(sprintf('%s::%s is only supported on multiple root trees', __CLASS__, __METHOD__));
+            // @codeCoverageIgnoreEnd
+        }
+
         $em = $this->getManager()->getEntityManager();
         $lftField = $this->getLeftFieldName();
         $rgtField = $this->getRightFieldName();
@@ -1435,7 +1445,7 @@ class NodeWrapper implements Node
     {
         return (($this->getLeftValue() > $node->getLeftValue()) &&
                 ($this->getRightValue() < $node->getRightValue()) &&
-                ($this->getRootValue() == $node->getRootValue()));
+                (!$this->hasManyRoots() || ($this->getRootValue() == $node->getRootValue())));
     }
 
 
@@ -1450,7 +1460,7 @@ class NodeWrapper implements Node
     {
         return (($this->getLeftValue() < $node->getLeftValue()) &&
                 ($this->getRightValue() > $node->getRightValue()) &&
-                ($this->getRootValue() == $node->getRootValue()));
+                (!$this->hasManyRoots() || ($this->getRootValue() == $node->getRootValue())));
     }
 
 
@@ -1465,7 +1475,7 @@ class NodeWrapper implements Node
     {
         return (($this->getLeftValue() == $node->getLeftValue()) &&
                 ($this->getRightValue() == $node->getRightValue()) &&
-                ($this->getRootValue() == $node->getRootValue()));
+                (!$this->hasManyRoots() || ($this->getRootValue() == $node->getRootValue())));
     }
 
 
@@ -1504,9 +1514,9 @@ class NodeWrapper implements Node
     }
 
 
-    protected function isRootFieldSupported()
+    protected function hasManyRoots()
     {
-        return $this->getManager()->getConfiguration()->isRootFieldSupported();
+        return $this->getManager()->getConfiguration()->hasManyRoots();
     }
 
 
