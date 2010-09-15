@@ -297,6 +297,13 @@ class Manager
     }
 
 
+    /**
+     * Resets the manager.  Clears NodeWrapper caches.
+     */
+    public function reset()
+    {
+        $this->wrappers = array();
+    }
 
 
     /**

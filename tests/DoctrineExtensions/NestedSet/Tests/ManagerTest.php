@@ -372,6 +372,22 @@ class ManagerTest extends DatabaseTest
 
 
     /**
+     * @covers DoctrineExtensions\NestedSet\Manager::reset
+     */
+    public function testReset()
+    {
+        $node = new NodeMock(1, '1');
+        $wrapper1 = $this->nsm->wrapNode($node);
+        $wrapper2 = $this->nsm->wrapNode($node);
+        $this->assertSame($wrapper1, $wrapper2, '->wrapNode() returns cached NodeWrapper instance');
+
+        $this->nsm->reset();
+        $wrapper3 = $this->nsm->wrapNode($node);
+        $this->assertNotSame($wrapper1, $wrapper3, '->reset() clears NodeWrapper cache');
+    }
+
+
+    /**
      * @covers DoctrineExtensions\NestedSet\Manager::getEntityManager
      */
     public function testGetEntityManager()
