@@ -287,8 +287,8 @@ class Manager
             throw new \InvalidArgumentException('Can\'t wrap a NodeWrapper node');
         }
 
-		$oid = spl_object_hash($node);
-        if(!isset($this->wrappers[$oid]))
+        $oid = spl_object_hash($node);
+        if(!isset($this->wrappers[$oid]) || $this->wrappers[$oid]->getNode() !== $node)
         {
             $this->wrappers[$oid] = new NodeWrapper($node, $this);
         }
