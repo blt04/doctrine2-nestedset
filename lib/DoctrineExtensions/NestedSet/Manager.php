@@ -526,6 +526,13 @@ class Manager
         }
         // @codeCoverageIgnoreEnd
 
+        // We are rebuilding the tree, so we invalidate all NodeWrappers
+        // in case they have cached children/metadata/etc.
+        foreach($wrappers as $wrapper)
+        {
+            $wrapper->invalidate();
+        }
+
         $config = $this->getConfiguration();
 
         $rootNode = $wrappers[0];

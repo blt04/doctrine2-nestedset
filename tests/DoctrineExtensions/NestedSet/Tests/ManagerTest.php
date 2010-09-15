@@ -307,6 +307,24 @@ class ManagerTest extends DatabaseTest
 
 
     /**
+     * @covers DoctrineExtensions\NestedSet\Manager::fetchTree
+     * @covers DoctrineExtensions\NestedSet\Manager::fetchTreeAsArray
+     * @covers DoctrineExtensions\NestedSet\Manager::buildTree
+     */
+    public function testFetchTreeDuplicate()
+    {
+        $this->loadData();
+        $nodes = $this->nodes;
+
+        $root1 = $this->nsm->fetchTree(1);
+        $this->assertEquals(2, count($root1->getChildren()), '1st root has correct number of children');
+
+        $root2 = $this->nsm->fetchTree(1);
+        $this->assertEquals(2, count($root2->getChildren()), '1st root has correct number of children after 2nd fetchTree()');
+    }
+
+
+    /**
      * @covers DoctrineExtensions\NestedSet\Manager::createRoot
      */
     public function testCreateRoot()
