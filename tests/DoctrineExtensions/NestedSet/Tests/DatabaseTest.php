@@ -18,11 +18,14 @@
 
 namespace DoctrineExtensions\NestedSet\Tests;
 
+use Doctrine\DBAL\Logging\DebugStack;
+
 abstract class DatabaseTest extends \PHPUnit_Framework_TestCase
 {
 
     private
-        $em;
+        $em,
+        $logger = null;
 
     /**
      * gets the entity manager to use for all tests
@@ -74,5 +77,35 @@ abstract class DatabaseTest extends \PHPUnit_Framework_TestCase
     }
 
 
+    protected function enableSqlLogger()
+    {
+        if($this->logger)
+        {
+            $this->logger->enabled = true;
+        }
+        else
+        {
+            $this->getSqlLogger();
+        }
+    }
 
+    protected function disableSqlLogger()
+    {
+        if($this->logger)
+        {
+            $this->logger->enabled = false;
+        }
+    }
+
+
+    protected function getSqlLogger()
+    {
+        if(!$this->logger)
+        {
+            $this->logger = new DebugStack();
+            $this->getEntityManager()->getConnection()->getConfiguration()->setSQLLogger($this->logger);
+        }
+
+        return $this->logger;
+    }
 }
