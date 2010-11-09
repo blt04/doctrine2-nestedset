@@ -52,6 +52,13 @@ class NodeMock implements MultipleRootNode
      */
     private $root;
 
+
+    /**
+     * @OneToOne(targetEntity="RelatedObj", inversedBy="node", fetch="LAZY", cascade={"persist"})
+     * @JoinColumn(name="related_id", referencedColumnName="id", nullable="true")
+     */
+    private $related;
+
     public function __construct($id, $name=null, $lft=null, $rgt=null, $root=1)
     {
         $this->id  = $id;
@@ -76,4 +83,7 @@ class NodeMock implements MultipleRootNode
     public function setName($name) { $this->name = $name; }
 
     public function __toString() { return $this->name; }
+
+    public function getRelatedObj() { return $this->related; }
+    public function setRelatedObj($related) { $this->related = $related; }
 }

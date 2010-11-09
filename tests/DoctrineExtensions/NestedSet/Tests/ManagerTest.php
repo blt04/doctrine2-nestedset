@@ -20,6 +20,7 @@ namespace DoctrineExtensions\NestedSet\Tests;
 
 use DoctrineExtensions\NestedSet\Tests\Mocks\NodeMock;
 use DoctrineExtensions\NestedSet\Tests\Mocks\ManagerMock;
+use DoctrineExtensions\NestedSet\Tests\Mocks\RelatedObj;
 use DoctrineExtensions\NestedSet\NodeWrapper;
 
 class ManagerTest extends DatabaseTest
@@ -325,6 +326,42 @@ class ManagerTest extends DatabaseTest
 
 
     /**
+     * @covers DoctrineExtensions\NestedSet\Manager::fetchBranch
+     * @covers DoctrineExtensions\NestedSet\Manager::fetchBranchAsArray
+     */
+    public function testFetchWithQueryBuilder()
+    {
+        $em = $this->getEntityManager();
+        $logger = $this->getSqlLogger();
+        $this->loadSchema(array($em->getClassMetadata('DoctrineExtensions\NestedSet\Tests\Mocks\RelatedObj')));
+        $this->loadData();
+
+        foreach($this->nodes as $node)
+        {
+            $node->setRelatedObj(new RelatedObj());
+        }
+        $em->flush();
+
+        $em->clear();
+        $logger->queries = array();
+
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('n, r')
+            ->from('DoctrineExtensions\NestedSet\Tests\Mocks\NodeMock', 'n')
+            ->innerJoin('n.related', 'r');
+        $this->nsm->getConfiguration()->setBaseQueryBuilder($qb);
+
+        $root = $this->nsm->fetchTree(1);
+
+        $beforeCount = count($logger->queries);
+        $relatedId = $root->getNode()->getRelatedObj()->getId();
+        $afterCount = count($logger->queries);
+
+        $this->assertEquals($beforeCount, $afterCount, '->fetchTree() uses custom base QueryBuilder');
+    }
+
+
+    /**
      * @covers DoctrineExtensions\NestedSet\Manager::createRoot
      */
     public function testCreateRoot()
@@ -504,6 +541,4 @@ class ManagerTest extends DatabaseTest
         $this->assertEmpty($this->nsm->filterNodeDepth(array(), 1), '->filterNodeDepth() returns an empty array when given an empty array');
         $this->assertEmpty($this->nsm->filterNodeDepth($this->nodes, 0), '->filterNodeDepth() returns an empty array for depth=0');
     }
-
-
 }
