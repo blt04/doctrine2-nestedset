@@ -177,12 +177,6 @@ class Manager
             return array();
         }
 
-        // Detach the fetched node as Doctrine uses it instead of the node
-        // fetched as part of the tree.  The node fetched as part of the tree
-        // may have additional joined classes via base query builder.
-        $this->getEntityManager()->detach($node);
-
-
         $qb = $config->getBaseQueryBuilder();
         $alias = $config->getQueryBuilderAlias();
 
