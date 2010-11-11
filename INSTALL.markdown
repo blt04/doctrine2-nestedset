@@ -10,5 +10,5 @@ extension:
 Now add the `DoctrineExtensions\NestedSet` namespace to your class autoloader.
 For example, if using Doctrine's autoloader:
 
-    $loader = new Doctrine\Common\ClassLoader("DoctrineExtensions\\NestedSet", "vendor/doctrine2-nestedset");
+    $loader = new Doctrine\Common\ClassLoader("DoctrineExtensions\\NestedSet", "vendor/doctrine2-nestedset/lib");
     $loader->register();
