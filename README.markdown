@@ -31,10 +31,14 @@ Here's an example using annotation mapping:
 
     use DoctrineExtensions\NestedSet\Node;
 
+    /**
+     * @Entity
+     */
     class Category implements Node
     {
         /**
          * @Id @Column(type="integer")
+         * @GeneratedValue
          */
         private $id;
 
@@ -61,6 +65,9 @@ Here's an example using annotation mapping:
 
         public function getRightValue() { return $this->rgt; }
         public function setRightValue($rgt) { $this->rgt = $rgt; }
+
+        public function getName() { return $this->name; }
+        public function setName($name) { $this->name = $name; }
 
         public function __toString() { return $this->name; }
     }
@@ -263,9 +270,9 @@ while using your nested set.
 
     $qb = $em->createQueryBuilder();
     $qb->select('c.name, p.name, m.name')
-        ->from('Category c')
-        ->leftJoin('c.HottestProduct p')
-        ->leftJoin('p.Manufacturer m');
+        ->from('Category', 'c')
+        ->leftJoin('c.HottestProduct', 'p')
+        ->leftJoin('p.Manufacturer', 'm');
 
 Now we need to set the above query as the base query for the tree:
 
