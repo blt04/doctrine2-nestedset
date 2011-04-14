@@ -83,7 +83,28 @@ class ConfigTest extends DatabaseTest
         $this->config->setClass('DoctrineExtensions\NestedSet\Tests\Mocks\NonNodeMock');
     }
 
+    /**
+     * @covers DoctrineExtensions\NestedSet\Config::setClass
+     * @covers DoctrineExtensions\NestedSet\Config::getClassname
+     * @covers DoctrineExtensions\NestedSet\Config::getClassMetadata
+     */
+    public function testSetAliasedClass()
+    {
+        $namespace = 'DoctrineExtensions\NestedSet\Tests\Mocks';
 
+        $this->getEntityManager()->getConfiguration()->addEntityNamespace('D2NS', $namespace);
+        $this->config->setClass('D2NS:NodeMock');
+        $clazz = $namespace.'\\'.'NodeMock';
+        $metadata = $this->getEntityManager()->getClassMetadata($clazz);
+        
+        $this->assertEquals($clazz, $this->config->getClassname(), '->setClass() accepts a repository alias');
+        $this->assertSame($metadata, $this->config->getClassMetadata(), '->getClassMetadata() works');
+
+        $this->assertSame($this->config, $this->config->setClass($clazz), '->setClass() returns $this for fluent API');
+        $this->assertEquals($clazz, $this->config->getClassname(), '->getClassname() works');
+
+    }
+    
     /**
      * @covers DoctrineExtensions\NestedSet\Config::setClass
      * @covers DoctrineExtensions\NestedSet\Config::getClassname

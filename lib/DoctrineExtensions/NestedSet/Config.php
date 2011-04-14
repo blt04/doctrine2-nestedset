@@ -82,15 +82,26 @@ class Config
             $classMetadata = $clazz;
             $classname = $clazz->getReflectionClass()->getName();
         }
-        else
+        else if (class_exists($clazz))
         {
-            if(!class_exists($clazz))
-            {
-                throw new \InvalidArgumentException("Can't find class: $clazz");
-            }
-
             $classname = $clazz;
             $classMetadata = $this->getEntityManager()->getClassMetadata($clazz);
+        } else
+        {
+            $parts = split(':', $clazz);
+            $alias = array_shift($parts);
+            $rest = implode('\\', $parts);
+
+            try
+            {
+                $namespace = $this->getEntityManager()->getConfiguration()->getEntityNamespace($alias);
+            }
+            catch (\Doctrine\ORM\ORMException $e) {
+                throw new \InvalidArgumentException("Can't find class: $clazz'");
+            }
+
+            $classname = $namespace.'\\'.$rest;
+            $classMetadata = $this->getEntityManager()->getClassMetadata($classname);
         }
 
         $reflectionClass = $classMetadata->getReflectionClass();
