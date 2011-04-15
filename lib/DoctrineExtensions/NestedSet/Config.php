@@ -88,7 +88,7 @@ class Config
             $classMetadata = $this->getEntityManager()->getClassMetadata($clazz);
         } else
         {
-            $parts = split(':', $clazz);
+            $parts = explode(':', $clazz);
             $alias = array_shift($parts);
             $rest = implode('\\', $parts);
 
