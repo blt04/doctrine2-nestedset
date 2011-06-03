@@ -243,7 +243,7 @@ the same as `getChildren()`).
     $tree = $nsm->fetchTreeAsArray(1);
 
     foreach ($tree as $node) {
-        echo str_repeat('&nbsp;&nbsp;', $node->getLevel()) . $node->getName() . "\n";
+        echo str_repeat('&nbsp;&nbsp;', $node->getLevel()) . $node . "<br>";
     }
 
 
