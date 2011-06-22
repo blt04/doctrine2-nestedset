@@ -104,8 +104,13 @@ class Manager
             $qb->andWhere("$alias.$rootField = :rootid")
                 ->setParameter('rootid', $rootId);
         }
-
-        $nodes = $qb->getQuery()->execute();
+		
+		$q = $qb->getQuery();
+		if ($this->config->isQueryHintSet()){
+			$q = $this->addHintToQuery($q);
+		}
+        $nodes = $q->execute();
+		
         if(empty($nodes))
         {
             return array();
@@ -193,8 +198,13 @@ class Manager
             $qb->andWhere("$alias.$rootField = :rootid")
                 ->setParameter('rootid', $node->getRootValue());
         }
-
-        $nodes = $qb->getQuery()->execute();
+		
+		$q = $qb->getQuery();
+		if ($this->config->isQueryHintSet()){
+			$q = $this->addHintToQuery($q);
+		}
+        $nodes = $q->execute();
+		
         // @codeCoverageIgnoreStart
         if(empty($nodes))
         {
@@ -585,4 +595,16 @@ class Manager
             }
         }
     }
+	
+	/**
+	 * Adds a Query hint to a Query Object
+	 * @param \Doctrine\ORM\Query $query
+	 * @return \Doctrine\ORM\Query 
+	 */
+	public function addHintToQuery(\Doctrine\ORM\Query $query)
+	{
+		return $query->setHint($this->getConfiguration()->GetQueryHintName(), $this->getConfiguration()->GetQueryHintValue());
+	}
+	
+	
 }

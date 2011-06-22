@@ -106,7 +106,11 @@ class NodeWrapper implements Node
                 ->setParameter('root', $this->getRootValue());
         }
 
-        $results = $qb->getQuery()->getResult();
+        $q = $qb->getQuery();
+		if ($this->getManager()->getConfiguration()->isQueryHintSet()){
+			$q = $this->getManager()->addHintToQuery($q);
+		}
+		$results = $q->getResult();
 
         return $this->getManager()->wrapNode($results[0]);
     }
@@ -141,7 +145,11 @@ class NodeWrapper implements Node
                 ->setParameter('root', $this->getRootValue());
         }
 
-        $results = $qb->getQuery()->getResult();
+        $q = $qb->getQuery();
+		if ($this->getManager()->getConfiguration()->isQueryHintSet()){
+			$q = $this->getManager()->addHintToQuery($q);
+		}
+		$results = $q->getResult();
 
         return $this->getManager()->wrapNode($results[0]);
     }
@@ -194,8 +202,11 @@ class NodeWrapper implements Node
             }
 
             // TODO: Add depth support or self join support?
-
-            $results = $qb->getQuery()->getResult();
+			$q = $qb->getQuery();
+			if ($this->getManager()->getConfiguration()->isQueryHintSet()){
+				$q = $this->getManager()->addHintToQuery($q);
+			}
+            $results = $q->getResult();
 
             $this->descendants = array();
             foreach($results as $result)
@@ -249,7 +260,12 @@ class NodeWrapper implements Node
                     ->setParameter('root', $this->getRootValue());
             }
 
-            $results = $qb->getQuery()->getResult();
+			$q = $qb->getQuery();
+			if ($this->getManager()->getConfiguration()->isQueryHintSet()){
+				$q = $this->getManager()->addHintToQuery($q);
+			}
+			$results = $q->getResult();
+			
             $this->parent = $this->getManager()->wrapNode($results[0]);
         }
 
@@ -285,7 +301,11 @@ class NodeWrapper implements Node
                     ->setParameter('root', $this->getRootValue());
             }
 
-            $results = $qb->getQuery()->getResult();
+			$q = $qb->getQuery();
+			if ($this->getManager()->getConfiguration()->isQueryHintSet()){
+				$q = $this->getManager()->addHintToQuery($q);
+			}
+			$results = $q->getResult();
 
             $this->ancestors = array();
             foreach($results as $result)
@@ -510,7 +530,11 @@ class NodeWrapper implements Node
                 ->setParameter('root', $this->getRootValue());
         }
 
-        $results = $qb->getQuery()->getResult();
+        $q = $qb->getQuery();
+		if ($this->getManager()->getConfiguration()->isQueryHintSet()){
+			$q = $this->getManager()->addHintToQuery($q);
+		}
+		$results = $q->getResult();
 
         if(!$results)
         {
@@ -554,7 +578,11 @@ class NodeWrapper implements Node
                 ->setParameter('root', $this->getRootValue());
         }
 
-        $results = $qb->getQuery()->getResult();
+        $q = $qb->getQuery();
+		if ($this->getManager()->getConfiguration()->isQueryHintSet()){
+			$q = $this->getManager()->addHintToQuery($q);
+		}
+		$results = $q->getResult();
 
         if(!$results)
         {

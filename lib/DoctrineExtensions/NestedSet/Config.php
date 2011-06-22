@@ -37,6 +37,8 @@ class Config
         $rightFieldName,
         $rootFieldName,
         $baseQueryBuilder,
+        $queryHintName,
+        $queryHintValue,
         $hydrateLevel,
         $hydrateOutlineNumber,
         $hasManyRoots;
@@ -294,7 +296,34 @@ class Config
     {
         return $this->getBaseQueryBuilder()->getRootAlias();
     }
-
+	
+	public function setQueryHint($name, $value)
+	{
+		$this->queryHintName = $name;			
+		$this->queryHintValue = $value;			
+	}
+	
+	public function getQueryHintName()
+	{
+		return $this->queryHintName;
+	}
+	
+	public function getQueryHintValue()
+	{
+		return $this->queryHintValue;
+	}
+	
+	/**
+	 * Checks Configuration to see if Query Hint has been set
+	 * @return bool 
+	 */
+	public function isQueryHintSet()
+	{
+		if (!$this->GetQueryHintName() || !$this->GetQueryHintValue()){
+			return false;
+		}
+		return true;
+	}
 
     /**
      * Returns true if the level should be hydrated when fetching trees
