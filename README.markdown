@@ -124,7 +124,7 @@ model's root node.  To get access to your model object:
     $nsm = new Manager($config);
 
     $category = new Category();
-    $category->name = 'Root Category 1';
+    $category->setName('Root Category 1');
 
     $rootNode = $nsm->createRoot($category);
 
@@ -132,10 +132,10 @@ model's root node.  To get access to your model object:
 ### Inserting a Node
 
     $child1 = new Category();
-    $child1->name = 'Child Category 1';
+    $child1->setName('Child Category 1');
 
     $child2 = new Category();
-    $child2->name = 'Child Category 2';
+    $child2->setName('Child Category 2');
 
     $rootNode->addChild($child1);
     $rootNode->addChild($child2);
