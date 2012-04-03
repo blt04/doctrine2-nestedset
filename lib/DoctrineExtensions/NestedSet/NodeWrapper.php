@@ -1279,9 +1279,10 @@ class NodeWrapper implements Node
 
         foreach(array($this->getLeftFieldName(), $this->getRightFieldName()) as $field)
         {
-            // Prepare left query
-            $q = $em->createQueryBuilder()
-            ->update(get_class($this->getNode()), 'n')
+            // Prepare left & right query
+            $metadata = $em->getClassMetadata(get_class($this->getNode()));
+            $q = $em->createQueryBuilder()            
+            ->update($metadata->rootEntityName, 'n')
             ->set("n.$field", "n.$field + :delta")
             ->setParameter('delta', $delta)
             ->where("n.$field >= :lowerbound")
