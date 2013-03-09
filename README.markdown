@@ -4,10 +4,10 @@ Doctrine2 NestedSet
 This Doctrine2 extension implements the nested set model (modified pre-order
 tree traversal algorithm) for Doctrine2.  This allows storing hierarchical
 data, a collection of data where each item has a single parent and zero or
-more children, in the flat tables of a relational database.  For more
+more children, in the flat tables of a relational database. For more
 information on the nested set model, see:
 
-[http://dev.mysql.com/tech-resources/articles/hierarchical-data.html](http://dev.mysql.com/tech-resources/articles/hierarchical-data.html)
+[https://en.wikipedia.org/wiki/Nested_set_model](https://en.wikipedia.org/wiki/Nested_set_model)
 
 
 ## Introduction
